@@ -57,6 +57,16 @@ public class MyFirstCustomWindow : EditorWindow
                 Debug.Log("No Object Selected");
             }
         };
+
+        Button deleteButton = new Button
+        {
+            text = "Delete Selected Object"
+        };
+        // Register a callback to be called when the button is clicked
+        deleteButton.clicked += Delete;
+        var _label2 = new Label("Click the button delete of the selected GameObject to white.");
+
+        root.Add(sayHelloButton);
         
         
         Button createPrefabButton = new Button
@@ -75,29 +85,6 @@ public class MyFirstCustomWindow : EditorWindow
         root.Add(deleteGameObjectButton);
         root.Add(_label);
         root.Add(RandomRotateButton);
-        root.Add(createPrefabButton);
-        root.Add(getSceneInfoButton);
-        
-        
-    }
-
-    private void GetSceneInfo()
-    {
-        var currentScene = EditorSceneManager.GetActiveScene();
-        var nbOfRootGAmeObject = currentScene.rootCount;
-        //_nbOfGameObjects.text = $"Number of GameObject in Scene" nbOfRootGAmeObject.ToString();
-    }
-
-    private void CreatePrefabButton()
-    {
-
-        if (Selection.activeGameObject != null)
-        {
-           GameObject currentGamerObject = Selection.activeGameObject;
-           if (!currentGamerObject.TryGetComponent(out TestScript testScript))
-           {
-               currentGamerObject.AddComponent<TestScript>();
-           }
 
            PrefabUtility.SaveAsPrefabAsset(
                currentGamerObject, "Assets/My Prefabs/My Prefab.prefab", out bool success);
@@ -125,4 +112,45 @@ public class MyFirstCustomWindow : EditorWindow
         }
         
     }
+
+    private void Delete()
+    {
+        if (Selection.activeGameObject != null)
+        {
+            int count = Selection.activeGameObject.gameObject.GetComponentCount();
+            Debug.Log("Count: " + count);
+
+            GameObject[] childs = Selection.gameObjects;
+
+            foreach (GameObject child in childs)
+            { 
+                Debug.Log("Deleted: " + child.name);
+                Undo.DestroyObjectImmediate(child);
+            }
+
+        }
+        else
+        {
+            Debug.Log("No Object Selected");
+        }
+    }
+
+    private void CreationAndSavePrebButton()
+    {
+        if (Selection.activeGameObject != null)
+        {
+            GameObject currentGameObject = Selection.activeGameObject;
+            if (!currentGameObject.TryGetComponent(out TestScript testScript))
+            {
+                currentGameObject.AddComponent<TestScript>();
+            }
+
+            string path = "Assets/My Prefabs/" + Selection.activeGameObject.name + ".prefab";
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(Selection.activeGameObject, path, out bool success);
+            if (success) Debug.Log("Your Prefab Success save. \n Prefab saved at: " + path);
+        }
+        else
+        {
+            Debug.Log("No Object Selected");
+        }
 }
